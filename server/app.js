@@ -6,22 +6,25 @@ const typeDefs = gql`
     id: ID
     login: String
     avatar_url: String
+    url: String
   }
 
   type Query {
-    users: [User]
+    users(userName: String!): [User]
   }
 `
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: async (_, {userName}) => {
+      console.log(userName)
       try {
-        const users = await axios.get("https://api.github.com/users")
-        return users.data.map(({ id, login, avatar_url }) => ({
+        const users = await axios.get(`https://api.github.com/search/users?per_page=5&page=1&q=${userName}`)
+        return users.data.items.map(({ id, login, avatar_url , url}) => ({
           id,
           login,
           avatar_url,
+          url
         }))
       } catch (error) {
         throw error
